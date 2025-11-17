@@ -1,2 +1,2 @@
-# js-project
-new project with OC on JS
+# azertype
+words and sentences generators - JS project
