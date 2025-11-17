@@ -105,18 +105,22 @@ body{
    gap:10px;
 }
 
-.overlay-popup{
-   display: none;
+.overlay-popup.active{
+   display: flex;
    position: absolute;
    top: 40%;
    gap:10px;
    width: 270px;
-   height:270px;
+   height:330px;
    box-shadow: 12px 12px 2px 1px rgba(0, 0, 255, 0.2);
    background: rgba(175, 95, 80, 1);
 }
 
+.overlay-popup{
+   display: none;
+}
 
 .emailbox label, .boxname label{
    text-wrap: nowrap;
 }
+

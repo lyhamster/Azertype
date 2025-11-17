@@ -39,8 +39,7 @@ function openMailBox(yourName, yourEmail, score) {
  * @returns 
  */
 function verifyName(firstName) {
-    if (firstName.value.length <= 2)
-        throw new Error("The name should at least have 2 letters");
+    return firstName.value.length > 2;
 }
 
 /**
@@ -49,9 +48,9 @@ function verifyName(firstName) {
  */
 function verifyEmail(mail) {
     const isEmailValid = new RegExp("[a-z0-9._-]+@[a-z0-9._-]+\\.[a-z]{2,}$", "i");
-
-    if (!isEmailValid.test(mail))
-        throw new Error ("The email is not valid");
+    // if (!isEmailValid.test(mail))
+    //     // throw new Error ("The email is not valid");
+    return isEmailValid.test(mail);
 }
 
 /**
@@ -79,7 +78,6 @@ function lancerJeu() {
             } else {
                 propositionList = listePhrases;
             }
-        
             displayGeneratedWords(propositionList[i]);
         });
     });
@@ -102,14 +100,12 @@ function lancerJeu() {
             displayGeneratedWords("fin du game pétasse");
             validateButton.disabled = true;
             gameFinished = true;
+            const gameResultToShare = `${score}/${nbMotsProposes}`
+            manageForm(gameResultToShare);
             afficherResultat(score, nbMotsProposes);
         }
-
-        const gameResultToShare = `${score}/${nbMotsProposes}`
-        manageForm(gameResultToShare);
-    });
-
-
+    }); 
+  
     selectAllRadio().forEach((radio) => {
         radio.addEventListener("click", () => {
             if (gameFinished){
@@ -130,19 +126,55 @@ function manageForm(shareScore) {
         
         const nameInput = document.getElementById("user-name");
         const nameValue = nameInput.value;
-        const emailValue = document.getElementById("email");
+        const email = document.getElementById("email");
+        const emailValue = email.value;
+        
+        try {
+            const errorsMessage = []
+            const isNameValid = verifyName(nameInput);
+            if (!isNameValid) {
+                errorsMessage.push("Le nom n'est pas valide ");
+            }
+            const isEmailValid = verifyEmail(emailValue);
+            if (!isEmailValid) {
+                errorsMessage.push("L'email n'est pas valide.");
+            }
 
-       try {
-        verifyName(nameInput);
-        verifyEmail(emailValue.value);
-        openMailBox(nameValue,emailValue,shareScore);
-       } catch (error){ 
-        console.log("oupsi" + error.message)
-       }
-
+            if (isNameValid !== true || isEmailValid !== true) {
+                throw new Error("erreur", {cause: errorsMessage});
+            }
+            verifyName(nameInput);
+            // openMailBox(nameValue,email,shareScore);
+            showErrorMessage();
+        } catch (error) {
+            console.log(error.cause); 
+            showErrorMessage(error.cause);
+        }
     })
 }
 
-// function showErrorMessage(error){
+function showErrorMessage(error){
 
-// }
+    const spanNameBlock = document.querySelector(".spanNameBlock");
+    const popUP = document.querySelector(".overlay-popup");
+
+    const spanEmailBlock = document.querySelector(".spanEmailBlock")
+    
+    if (!spanNameBlock && !spanEmailBlock) {  
+        const newNameSpanBlock = document.createElement("span"); 
+        popUP.insertAdjacentElement("beforeend", newNameSpanBlock);
+        newNameSpanBlock.classList.add("spanNameBlock");
+        newNameSpanBlock.textContent = error[0];
+
+        const newEmailSpanBlock = document.createElement("span"); 
+        popUP.insertAdjacentElement("beforeend", newEmailSpanBlock);
+        newEmailSpanBlock.classList.add("spanEmailBlock");
+        newEmailSpanBlock.textContent = error[1];
+    } else if (!error) { 
+        spanNameBlock.remove();
+        spanEmailBlock.remove();
+    } else if (spanNameBlock && spanEmailBlock) {
+        spanNameBlock.textContent = error[0];
+        spanEmailBlock.textContent = error[1];
+    }
+}
